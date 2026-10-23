@@ -89,7 +89,7 @@ function FanRegister() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/fans/register", {
+      const response = await fetch("https://aaron-pierre-backend.vercel.app/api/fans/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

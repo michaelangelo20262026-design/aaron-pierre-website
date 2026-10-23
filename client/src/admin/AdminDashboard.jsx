@@ -83,7 +83,7 @@ function AdminDashboard() {
   async function fetchUnreadCounts() {
     try {
       const data = await getAdminResponse(
-        "http://localhost:5000/api/admin/messages/unread-counts",
+        "https://aaron-pierre-backend.vercel.app/api/admin/messages/unread-counts",
       );
 
       setAaronUnreadCount(data.counts.aaron);
@@ -112,7 +112,7 @@ function AdminDashboard() {
       setMembershipMessage("");
 
       const data = await getAdminResponse(
-        `http://localhost:5000/api/admin/fans/${fanId}/membership`,
+        `https://aaron-pierre-backend.vercel.app/api/admin/fans/${fanId}/membership`,
         {
           method: "PATCH",
           body: JSON.stringify({
@@ -152,7 +152,7 @@ function AdminDashboard() {
           const fanId = fan.id || fan._id;
 
           const data = await getAdminResponse(
-            `http://localhost:5000/api/admin/messages/${fanId}?recipient=${recipient}`,
+            `https://aaron-pierre-backend.vercel.app/api/admin/messages/${fanId}?recipient=${recipient}`,
           );
 
           if (Array.isArray(data.messages) && data.messages.length > 0) {
@@ -178,7 +178,7 @@ function AdminDashboard() {
         setFansError("");
 
         const data = await getAdminResponse(
-          "http://localhost:5000/api/admin/fans",
+          "https://aaron-pierre-backend.vercel.app/api/admin/fans",
         );
 
         const fanList = Array.isArray(data)
@@ -262,7 +262,7 @@ function AdminDashboard() {
       }));
 
       const data = await getAdminResponse(
-        `http://localhost:5000/api/admin/messages/${fanId}?recipient=${recipient}`,
+        `https://aaron-pierre-backend.vercel.app/api/admin/messages/${fanId}?recipient=${recipient}`,
       );
 
       setSelectedFan(data.fan || fan);
@@ -335,7 +335,7 @@ function AdminDashboard() {
       const recipient = getCurrentRecipient();
 
       const data = await getAdminResponse(
-        `http://localhost:5000/api/admin/messages/${fanId}?recipient=${recipient}`,
+        `https://aaron-pierre-backend.vercel.app/api/admin/messages/${fanId}?recipient=${recipient}`,
         {
           method: "POST",
           body: JSON.stringify({

@@ -55,7 +55,7 @@ function FanChat() {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/api/messages", {
+        const response = await fetch("https://aaron-pierre-backend.vercel.app/api/messages", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -96,7 +96,7 @@ function FanChat() {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/api/fans/profile", {
+        const response = await fetch("https://aaron-pierre-backend.vercel.app/api/fans/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -125,7 +125,7 @@ function FanChat() {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/messages/unread-count",
+          "https://aaron-pierre-backend.vercel.app/api/messages/unread-count",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -217,7 +217,7 @@ function FanChat() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/messages?recipient=aaron",
+        "https://aaron-pierre-backend.vercel.app/api/messages?recipient=aaron",
         {
           method: "POST",
           headers: {

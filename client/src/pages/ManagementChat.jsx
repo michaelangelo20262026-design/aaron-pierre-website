@@ -42,7 +42,7 @@ function ManagementChat() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/public-enquiries",
+        "https://aaron-pierre-backend.vercel.app/api/public-enquiries",
         {
           method: "POST",
           headers: {

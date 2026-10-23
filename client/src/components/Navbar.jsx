@@ -21,7 +21,7 @@ function Navbar() {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/messages/unread-count",
+          "https://aaron-pierre-backend.vercel.app/api/messages/unread-count",
           {
             headers: {
               Authorization: `Bearer ${token}`,

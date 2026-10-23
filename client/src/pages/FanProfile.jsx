@@ -21,7 +21,7 @@ function FanProfile() {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/api/fans/profile", {
+        const response = await fetch("https://aaron-pierre-backend.vercel.app/api/fans/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -102,7 +102,7 @@ function FanProfile() {
     setSuccessMessage("");
 
     try {
-      const response = await fetch("http://localhost:5000/api/fans/profile", {
+      const response = await fetch("https://aaron-pierre-backend.vercel.app/api/fans/profile", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
