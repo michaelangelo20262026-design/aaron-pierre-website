@@ -4,6 +4,8 @@ function AdminDashboard() {
   const [fans, setFans] = useState([]);
   const [fanUnreadCounts, setFanUnreadCounts] = useState({});
   const [activeSection, setActiveSection] = useState("overview");
+  const [sectionHistory, setSectionHistory] = useState(["overview"]);
+  const [historyIndex, setHistoryIndex] = useState(0);
   const [loadingFans, setLoadingFans] = useState(true);
   const [fansError, setFansError] = useState("");
   const [inboxFans, setInboxFans] = useState([]);
@@ -207,7 +209,18 @@ function AdminDashboard() {
     };
   }, []);
 
-  function openSection(section) {
+  function openSection(section, updateHistory = true) {
+    if (updateHistory) {
+      const updatedHistory = sectionHistory.slice(0, historyIndex + 1);
+
+      if (updatedHistory[updatedHistory.length - 1] !== section) {
+        updatedHistory.push(section);
+      }
+
+      setSectionHistory(updatedHistory);
+      setHistoryIndex(updatedHistory.length - 1);
+    }
+
     setActiveSection(section);
     setSelectedFan(null);
     setMessages([]);
@@ -240,6 +253,24 @@ function AdminDashboard() {
         });
     } else {
       setInboxFans([]);
+    }
+  }
+
+  function goBack() {
+    if (historyIndex > 0) {
+      const previousIndex = historyIndex - 1;
+
+      setHistoryIndex(previousIndex);
+      openSection(sectionHistory[previousIndex], false);
+    }
+  }
+
+  function goForward() {
+    if (historyIndex < sectionHistory.length - 1) {
+      const nextIndex = historyIndex + 1;
+
+      setHistoryIndex(nextIndex);
+      openSection(sectionHistory[nextIndex], false);
     }
   }
   async function openConversation(fan) {
@@ -964,60 +995,61 @@ function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#0B1020] text-white">
-      <aside className="fixed left-0 top-0 hidden h-screen w-64 border-r border-white/10 bg-[#0D1425] p-6 md:block">
-        <div className="mb-12">
-          <h1 className="text-2xl font-bold text-[#D8BD8A]">AP</h1>
+     <aside className="fixed left-0 top-0 hidden h-screen w-64 border-r border-white/10 bg-[#0D1425] p-6 md:block">
+  <div className="mb-12">
+    <h1 className="text-2xl font-bold text-[#D8BD8A]">AP</h1>
 
-          <p className="mt-2 text-xs uppercase tracking-[0.25em] text-slate-400">
-            Executive Control Room
-          </p>
-        </div>
-        <nav className="space-y-2">
-          {navigationItems.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => openSection(item.id)}
-              className={`block w-full rounded-xl px-4 py-3 text-left text-sm transition ${
-                activeSection === item.id
-                  ? "bg-[#C5A46D]/10 font-medium text-[#D8BD8A]"
-                  : "text-slate-400 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <span className="flex items-center justify-between gap-3">
-                <span>{item.label}</span>
+    <p className="mt-2 text-xs uppercase tracking-[0.25em] text-slate-400">
+      Executive Control Room
+    </p>
+  </div>
 
-                {item.id === "aaronInbox" && aaronUnreadCount > 0 && (
-                  <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
-                    {aaronUnreadCount}
-                  </span>
-                )}
+  <nav className="space-y-2">
+    {navigationItems.map((item) => (
+      <button
+        key={item.id}
+        type="button"
+        onClick={() => openSection(item.id)}
+        className={`block w-full rounded-xl px-4 py-3 text-left text-sm transition ${
+          activeSection === item.id
+            ? "bg-[#C5A46D]/10 font-medium text-[#D8BD8A]"
+            : "text-slate-400 hover:bg-white/5 hover:text-white"
+        }`}
+      >
+        <span className="flex items-center justify-between gap-3">
+          <span>{item.label}</span>
 
-                {item.id === "managementInbox" && managementUnreadCount > 0 && (
-                  <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
-                    {managementUnreadCount}
-                  </span>
-                )}
-              </span>
-            </button>
-          ))}
-        </nav>
+          {item.id === "aaronInbox" && aaronUnreadCount > 0 && (
+            <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+              {aaronUnreadCount}
+            </span>
+          )}
 
-        <div className="absolute bottom-6 left-6 right-6 border-t border-white/10 pt-5">
-          <p className="text-xs text-slate-500">Private Administration</p>
+          {item.id === "managementInbox" && managementUnreadCount > 0 && (
+            <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+              {managementUnreadCount}
+            </span>
+          )}
+        </span>
+      </button>
+    ))}
+  </nav>
 
-          <button
-            type="button"
-            onClick={() => {
-              localStorage.removeItem("adminToken");
-              window.location.href = "/admin/login";
-            }}
-            className="mt-4 w-full rounded-lg border border-white/10 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/5"
-          >
-            Sign Out
-          </button>
-        </div>
-      </aside>
+  <div className="absolute bottom-6 left-6 right-6 border-t border-white/10 pt-5">
+    <p className="text-xs text-slate-500">Private Administration</p>
+
+    <button
+      type="button"
+      onClick={() => {
+        localStorage.removeItem("adminToken");
+        window.location.href = "/admin/login";
+      }}
+      className="mt-4 w-full rounded-lg border border-white/10 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/5"
+    >
+      Sign Out
+    </button>
+  </div>
+</aside>
 
       <main className="min-h-screen md:ml-64">
         <header className="flex flex-col gap-4 border-b border-white/10 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-10">
@@ -1033,6 +1065,25 @@ function AdminDashboard() {
             <p className="mt-2 text-sm text-slate-400">
               Manage your website and stay connected with your fan community.
             </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={goBack}
+              disabled={historyIndex === 0}
+              className="rounded-lg border border-[#C5A46D]/30 px-4 py-2 text-sm text-[#D8BD8A] transition hover:bg-[#C5A46D]/10 disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              ← Back
+            </button>
+
+            <button
+              type="button"
+              onClick={goForward}
+              disabled={historyIndex >= sectionHistory.length - 1}
+              className="rounded-lg border border-[#C5A46D]/30 px-4 py-2 text-sm text-[#D8BD8A] transition hover:bg-[#C5A46D]/10 disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              Forward →
+            </button>
           </div>
 
           <div className="rounded-xl border border-white/10 bg-[#12192B] px-4 py-3">

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import SectionHeading from "../components/SectionHeading.jsx";
+import { createPortal } from "react-dom";
 
 const galleryImages = [
   {
@@ -242,7 +243,7 @@ function Gallery() {
       : galleryImages.filter((item) => item.category === activeFilter);
 
   const selectedItem =
-    selectedImage === null ? null : filteredImages[selectedImage];
+    selectedImage === null ? null : (filteredImages[selectedImage] ?? null);
 
   const showPreviousImage = () => {
     setSelectedImage((current) =>
@@ -427,105 +428,110 @@ function Gallery() {
       </div>
 
       {/* Full-Screen Image Viewer */}
-      {selectedItem && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Gallery image viewer"
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4 backdrop-blur-md sm:p-8"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setSelectedImage(null);
-            }
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setSelectedImage(null)}
-            aria-label="Close image viewer"
-            className="absolute right-5 top-5 z-20 flex h-12 w-12 items-center justify-center border border-white/20 bg-black/50 text-3xl text-white transition hover:border-[#C5A46D] hover:bg-[#C5A46D] hover:text-black"
+      {selectedItem &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Gallery image viewer"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4 backdrop-blur-md sm:p-8"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) {
+                setSelectedImage(null);
+              }
+            }}
           >
-            ×
-          </button>
+            <button
+              type="button"
+              onClick={() => setSelectedImage(null)}
+              aria-label="Close image viewer"
+              className="absolute right-5 top-5 z-20 flex h-12 w-12 items-center justify-center border border-white/20 bg-black/50 text-3xl text-white transition hover:border-[#C5A46D] hover:bg-[#C5A46D] hover:text-black"
+            >
+              ×
+            </button>
 
-          <div className="absolute left-5 top-7 text-[10px] uppercase tracking-[0.2em] text-[#D8BD8A] sm:left-8">
-            {String(selectedImage + 1).padStart(2, "0")} /{" "}
-            {String(filteredImages.length).padStart(2, "0")}
-          </div>
+            <div className="absolute left-5 top-7 text-[10px] uppercase tracking-[0.2em] text-[#D8BD8A] sm:left-8">
+              {String(selectedImage + 1).padStart(2, "0")} /{" "}
+              {String(filteredImages.length).padStart(2, "0")}
+            </div>
 
-          <button
-            type="button"
-            onClick={showPreviousImage}
-            aria-label="Previous image"
-            className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-white/20 bg-black/50 text-2xl text-white transition hover:border-[#C5A46D] hover:text-[#D8BD8A] sm:left-8 sm:h-14 sm:w-14"
-          >
-            ‹
-          </button>
+            <button
+              type="button"
+              onClick={showPreviousImage}
+              aria-label="Previous image"
+              className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-white/20 bg-black/50 text-2xl text-white transition hover:border-[#C5A46D] hover:text-[#D8BD8A] sm:left-8 sm:h-14 sm:w-14"
+            >
+              ‹
+            </button>
 
-          <div className="flex max-h-full w-full max-w-6xl flex-col items-center justify-center">
-            {failedImages[selectedItem.number] ? (
-              <div className="flex h-[50vh] w-full items-center justify-center bg-gradient-to-br from-[#29251F] via-[#151515] to-[#090909]">
-                <span className="text-8xl font-light tracking-[-0.08em] text-[#D8BD8A]/30">
-                  AP
-                </span>
-              </div>
-            ) : (
-              <img
-                key={selectedItem.number}
-                src={selectedItem.image}
-                alt={selectedItem.title}
-                onError={() =>
-                  setFailedImages((previous) => ({
-                    ...previous,
-                    [selectedItem.number]: true,
-                  }))
-                }
-                className="max-h-[65vh] max-w-full object-contain sm:max-h-[72vh]"
-              />
-            )}
-
-            <div className="mt-5 w-full max-w-3xl border-t border-white/10 pt-4">
-              <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-                <div>
-                  <p className="text-[9px] uppercase tracking-[0.2em] text-[#D8BD8A]">
-                    {selectedItem.category}
-                  </p>
-
-                  <h3 className="mt-2 text-xl font-light text-white sm:text-2xl">
-                    {selectedItem.title}
-                  </h3>
-
-                  <p className="mt-2 text-xs leading-6 text-white/55">
-                    {selectedItem.description}
-                  </p>
+            <div className="flex max-h-full w-full max-w-6xl flex-col items-center justify-center">
+              {failedImages[selectedItem.number] ? (
+                <div className="flex h-[50vh] w-full items-center justify-center bg-gradient-to-br from-[#29251F] via-[#151515] to-[#090909]">
+                  <span className="text-8xl font-light tracking-[-0.08em] text-[#D8BD8A]/30">
+                    AP
+                  </span>
                 </div>
+              ) : (
+                <img
+                  key={selectedItem.number}
+                  src={selectedItem.image}
+                  onLoad={() =>
+                    console.log("VIEWER IMAGE LOADED:", selectedItem.image)
+                  }
+                  alt={selectedItem.title}
+                  onError={() =>
+                    setFailedImages((previous) => ({
+                      ...previous,
+                      [selectedItem.number]: true,
+                    }))
+                  }
+                  className="block h-auto max-h-[65vh] w-auto max-w-full object-contain opacity-100 sm:max-h-[72vh]"
+                />
+              )}
 
-                <a
-                  href={selectedItem.creditUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="shrink-0 text-[9px] uppercase tracking-[0.12em] text-white/45 underline underline-offset-4 transition hover:text-[#D8BD8A]"
-                >
-                  Photo source ↗
-                </a>
+              <div className="mt-5 w-full max-w-3xl border-t border-white/10 pt-4">
+                <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+                  <div>
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-[#D8BD8A]">
+                      {selectedItem.category}
+                    </p>
+
+                    <h3 className="mt-2 text-xl font-light text-white sm:text-2xl">
+                      {selectedItem.title}
+                    </h3>
+
+                    <p className="mt-2 text-xs leading-6 text-white/55">
+                      {selectedItem.description}
+                    </p>
+                  </div>
+
+                  <a
+                    href={selectedItem.creditUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="shrink-0 text-[9px] uppercase tracking-[0.12em] text-white/45 underline underline-offset-4 transition hover:text-[#D8BD8A]"
+                  >
+                    Photo source ↗
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
 
-          <button
-            type="button"
-            onClick={showNextImage}
-            aria-label="Next image"
-            className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-white/20 bg-black/50 text-2xl text-white transition hover:border-[#C5A46D] hover:text-[#D8BD8A] sm:right-8 sm:h-14 sm:w-14"
-          >
-            ›
-          </button>
+            <button
+              type="button"
+              onClick={showNextImage}
+              aria-label="Next image"
+              className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-white/20 bg-black/50 text-2xl text-white transition hover:border-[#C5A46D] hover:text-[#D8BD8A] sm:right-8 sm:h-14 sm:w-14"
+            >
+              ›
+            </button>
 
-          <p className="absolute bottom-3 text-center text-[9px] uppercase tracking-[0.14em] text-white/30">
-            Use ← → to browse · Esc to close
-          </p>
-        </div>
-      )}
+            <p className="absolute bottom-3 text-center text-[9px] uppercase tracking-[0.14em] text-white/30">
+              Use ← → to browse · Esc to close
+            </p>
+          </div>,
+          document.body,
+        )}
     </section>
   );
 }
