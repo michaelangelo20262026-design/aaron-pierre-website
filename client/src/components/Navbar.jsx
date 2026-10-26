@@ -10,6 +10,11 @@ function Navbar() {
     setMenuOpen(false);
   };
 
+  function openFanChat() {
+    window.dispatchEvent(new Event("fan-chat-open"));
+    setMenuOpen(false);
+  }
+
   useEffect(function () {
     async function loadUnreadCount() {
       const token = localStorage.getItem("fanToken");
@@ -48,6 +53,7 @@ function Navbar() {
       clearInterval(intervalId);
     };
   }, []);
+
   const navLinks = [
     { label: "Home", to: "/" },
     { label: "About", to: "/about" },
@@ -91,6 +97,7 @@ function Navbar() {
             <Link
               key={link.label}
               to={link.to}
+              onClick={link.to === "/fan-chat" ? openFanChat : undefined}
               aria-current={isActive(link.to) ? "page" : undefined}
               className={`group relative whitespace-nowrap py-2 text-[9px] font-medium uppercase tracking-[0.06em] transition-all duration-300 xl:text-[10px] xl:tracking-[0.08em] ${
                 isActive(link.to)
@@ -121,6 +128,7 @@ function Navbar() {
         <div className="hidden shrink-0 items-center gap-3 lg:flex">
           <Link
             to="/fan-chat"
+            onClick={openFanChat}
             className="relative inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-3 text-[9px] font-semibold uppercase tracking-[0.08em] text-white transition duration-300 hover:bg-emerald-400"
           >
             <span className="h-2 w-2 rounded-full bg-white" />
@@ -144,7 +152,7 @@ function Navbar() {
         <div className="ml-auto flex shrink-0 items-center gap-3 lg:hidden">
           <Link
             to="/fan-chat"
-            onClick={closeMenu}
+            onClick={openFanChat}
             className="relative inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-3 text-[9px] font-semibold uppercase tracking-[0.08em] text-white transition hover:bg-emerald-400"
           >
             <span className="h-2 w-2 rounded-full bg-white" />
@@ -196,7 +204,7 @@ function Navbar() {
               <Link
                 key={link.label}
                 to={link.to}
-                onClick={closeMenu}
+                onClick={link.to === "/fan-chat" ? openFanChat : closeMenu}
                 aria-current={isActive(link.to) ? "page" : undefined}
                 className={`flex items-center justify-between border-b border-white/[0.06] py-4 text-[11px] uppercase tracking-[0.16em] transition-all duration-300 ${
                   isActive(link.to)

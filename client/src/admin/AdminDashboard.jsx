@@ -148,32 +148,12 @@ function AdminDashboard() {
     }
   }
   async function fetchInboxFans(recipient) {
-    const inboxFans = await Promise.all(
-      fans.map(async function (fan) {
-        try {
-          const fanId = fan.id || fan._id;
-
-          const data = await getAdminResponse(
-            `https://aaron-pierre-backend.vercel.app/api/admin/messages/${fanId}?recipient=${recipient}`,
-          );
-
-          if (Array.isArray(data.messages) && data.messages.length > 0) {
-            return fan;
-          }
-
-          return null;
-        } catch (error) {
-          console.error("Unable to check fan conversation:", error);
-          return null;
-        }
-      }),
+    const data = await getAdminResponse(
+      `https://aaron-pierre-backend.vercel.app/api/admin/inbox-fans?recipient=${recipient}`,
     );
 
-    return inboxFans.filter(function (fan) {
-      return fan !== null;
-    });
+    return Array.isArray(data) ? data : [];
   }
-
   useEffect(() => {
     async function fetchFans() {
       try {
@@ -196,13 +176,13 @@ function AdminDashboard() {
         setLoadingFans(false);
       }
     }
-
     fetchFans();
     fetchUnreadCounts();
 
     const unreadInterval = setInterval(() => {
       fetchUnreadCounts();
-    }, 5000);
+      fetchFans();
+    }, 10000);
 
     return () => {
       clearInterval(unreadInterval);
@@ -298,7 +278,7 @@ function AdminDashboard() {
 
       setSelectedFan(data.fan || fan);
       setMessages(Array.isArray(data.messages) ? data.messages : []);
-      await fetchUnreadCounts();
+      fetchUnreadCounts();
     } catch (error) {
       setMessagesError(error.message || "Unable to load this conversation.");
     } finally {

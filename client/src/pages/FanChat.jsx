@@ -46,46 +46,71 @@ function FanChat() {
   const [imageError, setImageError] = useState("");
   const imageInputRef = useRef(null);
   const messageHistoryRef = useRef(null);
-  useEffect(function () {
-    async function loadMessages() {
-      const token = localStorage.getItem("fanToken");
+  async function loadMessages() {
+    const token = localStorage.getItem("fanToken");
 
-      if (!token) {
-        return;
-      }
+    if (!token) {
+      return;
+    }
 
-      try {
-        const response = await fetch("https://aaron-pierre-backend.vercel.app/api/messages", {
+    try {
+      const response = await fetch(
+        "https://aaron-pierre-backend.vercel.app/api/messages",
+        {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
+        },
+      );
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (!response.ok) {
-          return;
-        }
-
-        const savedMessages = data.messages.map(function (message) {
-          return {
-            ...message,
-            time: new Date(message.time).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-          };
-        });
-
-        setMessages(savedMessages);
-      } catch (error) {
-        console.error("Unable to load messages:", error);
+      if (!response.ok) {
+        return;
       }
-    }
 
+      const savedMessages = data.messages.map(function (message) {
+        return {
+          ...message,
+          time: new Date(message.time).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        };
+      });
+
+      setMessages(savedMessages);
+    } catch (error) {
+      console.error("Unable to load messages:", error);
+    }
+  }
+
+  useEffect(function () {
     loadMessages();
+
+    window.addEventListener("fan-chat-open", loadMessages);
+
+    return function () {
+      window.removeEventListener("fan-chat-open", loadMessages);
+    };
   }, []);
+
+  useEffect(
+    function () {
+      const messageHistory = messageHistoryRef.current;
+
+      if (!messageHistory) {
+        return;
+      }
+
+      messageHistory.scrollTo({
+        top: messageHistory.scrollHeight,
+        behavior: "smooth",
+      });
+    },
+    [messages],
+  );
 
   useEffect(function () {
     async function loadFanProfile() {
@@ -96,11 +121,14 @@ function FanChat() {
       }
 
       try {
-        const response = await fetch("https://aaron-pierre-backend.vercel.app/api/fans/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await fetch(
+          "https://aaron-pierre-backend.vercel.app/api/fans/profile",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
+        );
 
         const data = await response.json();
 
@@ -286,6 +314,20 @@ function FanChat() {
 
       <div className="relative mx-auto max-w-[1400px]">
         {/* Section Heading */}
+        <div className="mb-6 flex justify-end">
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.removeItem("fanLoggedIn");
+              localStorage.removeItem("fanToken");
+              localStorage.removeItem("fanAccount");
+              window.location.href = "/fan-login";
+            }}
+            className="border border-[#C5A46D]/40 px-5 py-2 text-[10px] uppercase tracking-[0.2em] text-[#D8BD8A] transition-colors hover:border-[#D8BD8A] hover:bg-[#C5A46D]/10"
+          >
+            Log Out
+          </button>
+        </div>
         <div className="mb-10 border-b border-white/[0.08] pb-8 sm:mb-12">
           <p className="flex items-center gap-3 text-[9px] uppercase tracking-[0.3em] text-[#D8BD8A]">
             <span className="h-px w-8 bg-[#C5A46D]" />

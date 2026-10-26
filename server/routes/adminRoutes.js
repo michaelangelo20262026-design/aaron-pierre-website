@@ -149,6 +149,46 @@ router.get("/fans", adminMiddleware, async function (req, res) {
     });
   }
 });
+router.get("/inbox-fans", adminMiddleware, async function (req, res) {
+  try {
+    const { recipient } = req.query;
+
+    if (!["aaron", "management"].includes(recipient)) {
+      return res.status(400).json({
+        message: "Recipient must be aaron or management.",
+      });
+    }
+
+    const fanIds = await Message.distinct("fan", {
+      recipient: recipient,
+    });
+
+    const fans = await Fan.find({
+      _id: { $in: fanIds },
+    })
+      .select("-pinHash")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json(
+      fans.map(function (fan) {
+        return {
+          id: fan._id,
+          displayName: fan.displayName,
+          email: fan.email,
+          profilePicture: fan.profilePicture,
+          membershipTier: fan.membershipTier,
+          createdAt: fan.createdAt,
+        };
+      }),
+    );
+  } catch (error) {
+    console.error("Get inbox fans error:", error.message);
+
+    return res.status(500).json({
+      message: "Unable to retrieve inbox conversations.",
+    });
+  }
+});
 
 // Update a fan's membership tier
 router.patch(
